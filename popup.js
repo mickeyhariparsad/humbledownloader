@@ -57,10 +57,10 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
   const currentTab = tabs[0];
   if (currentTab && currentTab.id && currentTab.url) {
     // Check if it's a Humble Bundle book page URL
-    if (currentTab.url.startsWith('https://www.humblebundle.com/books/')) {
+    if (currentTab.url.startsWith('https://www.humblebundle.com/')) {
       injectContentScript(currentTab.id);
     } else {
-      showError('This extension only works on Humble Bundle book pages (humblebundle.com/books/...).');
+      showError('This extension only works on Humble Bundle book pages (humblebundle.com/...).');
     }
   } else {
     showError('Could not get active tab information.');

@@ -8,7 +8,7 @@
       "scripting"
     ],
     "host_permissions": [
-      "https://www.humblebundle.com/books/*",
+      "https://www.humblebundle.com/*",
       "https://cdn.humblebundle.com/*"
     ],
     "action": {
