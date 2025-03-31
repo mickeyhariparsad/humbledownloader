@@ -1,0 +1,17 @@
+{
+    "manifest_version": 3,
+    "name": "Humble Bundle Helper",
+    "version": "0.3.0",
+    "description": "Displays information about the current Humble Bundle book page.",
+    "permissions": [
+      "activeTab",
+      "scripting"
+    ],
+    "host_permissions": [
+      "https://www.humblebundle.com/books/*",
+      "https://cdn.humblebundle.com/*"
+    ],
+    "action": {
+      "default_popup": "popup.html"
+    }
+  }

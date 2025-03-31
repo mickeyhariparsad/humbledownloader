@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Humble Bundle Helper</title>
+  <style>
+    body { width: 250px; font-family: sans-serif; padding: 10px; }
+    h3 { margin-top: 0; }
+    p { margin: 5px 0; }
+    #loading { color: grey; }
+    #content { display: none; } /* Hidden until data arrives */
+    button { margin-top: 15px; padding: 5px 10px; }
+  </style>
+</head>
+<body>
+  <h3>Bundle Information</h3>
+  <div id="loading">Loading...</div>
+  <div id="content">
+    <p><strong>Name:</strong> <span id="bundleName">N/A</span></p>
+    <p><strong>Books:</strong> <span id="bookCount">N/A</span></p>
+    <button id="confirmButton">Confirm Info</button>
+  </div>
+  <div id="error" style="color: red;"></div>
+  <script src="popup.js"></script>
+</body>
+</html>
