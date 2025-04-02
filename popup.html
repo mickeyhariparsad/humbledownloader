@@ -3,12 +3,17 @@
 <head>
   <title>Humble Bundle Helper</title>
   <style>
-    body { width: 250px; font-family: sans-serif; padding: 10px; }
+    body { width: 280px; font-family: sans-serif; padding: 10px; }
     h3 { margin-top: 0; }
     p { margin: 5px 0; }
     #loading { color: grey; }
     #content { display: none; } /* Hidden until data arrives */
-    button { margin-top: 15px; padding: 5px 10px; }
+    button { margin-top: 15px; padding: 5px 10px; cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: 0.6; }
+    #status { margin-top: 10px; font-style: italic; color: green; font-size: 0.9em;}
+    .format-selection label { margin-right: 15px; cursor: pointer;}
+    .format-selection input[type="radio"] { cursor: pointer; }
+    .format-selection { margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -16,10 +21,20 @@
   <div id="loading">Loading...</div>
   <div id="content">
     <p><strong>Name:</strong> <span id="bundleName">N/A</span></p>
-    <p><strong>Books:</strong> <span id="bookCount">N/A</span></p>
-    <button id="confirmButton">Confirm Info</button>
+    <p><strong>Items Found:</strong> <span id="itemCount">N/A</span></p>
+    <div class="format-selection">
+      <strong>Select Format:</strong><br>
+      <input type="radio" id="formatPdf" name="downloadFormat" value="pdf" checked>
+      <label for="formatPdf">PDF (<span id="pdfCount">0</span>)</label>
+      <input type="radio" id="formatEpub" name="downloadFormat" value="epub">
+      <label for="formatEpub">EPUB (<span id="epubCount">0</span>)</label>
+    </div>
+
+    <button id="downloadButton">Download Selected Format</button>
+    <button id="closeButton">Close</button>
   </div>
-  <div id="error" style="color: red;"></div>
+  <div id="error" style="color: red; font-size: 0.9em;"></div>
+  <div id="status"></div>
   <script src="popup.js"></script>
 </body>
 </html>
