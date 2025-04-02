@@ -123,91 +123,97 @@ closeButton.addEventListener('click', () => {
 
 // --- Add functionality to the DOWNLOAD button ---
 downloadButton.addEventListener('click', () => {
-    let selectedFormat = '';
-    let formatKey = ''; // 'pdfUrl' or 'epubUrl'
-    let fileExtension = '';
+  let selectedFormat = '';
+  let formatKey = ''; // 'pdfUrl' or 'epubUrl'
+  let fileExtension = '';
 
-    if (formatPdfRadio.checked) {
-        selectedFormat = 'PDF';
-        formatKey = 'pdfUrl';
-        fileExtension = 'pdf';
-    } else if (formatEpubRadio.checked) {
-        selectedFormat = 'EPUB';
-        formatKey = 'epubUrl';
-        fileExtension = 'epub';
-    } else {
-        statusDiv.textContent = 'Error: No format selected?'; // Should not happen with default checked
-        statusDiv.style.color = 'red';
-        return;
-    }
+  if (formatPdfRadio.checked) {
+      selectedFormat = 'PDF';
+      formatKey = 'pdfUrl';
+      fileExtension = 'pdf';
+  } else if (formatEpubRadio.checked) {
+      selectedFormat = 'EPUB';
+      formatKey = 'epubUrl';
+      fileExtension = 'epub';
+  } else {
+      statusDiv.textContent = 'Please select a format.';
+      statusDiv.style.color = 'red';
+      return; // Stop if no format selected
+  }
 
-    // Filter items that actually have a URL for the selected format
-    const itemsToDownload = currentItemsData.filter(item => item[formatKey]);
-    const totalItemsDetected = currentItemsData.length; // For verification message
+  // Filter items that actually have a URL for the selected format
+  const itemsToDownload = currentItemsData.filter(item => item[formatKey]);
+  const totalItemsDetected = currentItemsData.length; // For verification message
 
-    if (itemsToDownload.length > 0) {
-        let verificationMsg = `Starting ${itemsToDownload.length} ${selectedFormat} download(s)...`;
-        // Add note only if the link count differs from the *overall* item count AND items were detected
-        if (itemsToDownload.length !== totalItemsDetected && totalItemsDetected > 0) {
-             verificationMsg += ` (Note: ${totalItemsDetected} items detected total)`;
-             statusDiv.style.color = 'orange';
-        } else {
-             statusDiv.style.color = 'green';
-        }
-        statusDiv.textContent = verificationMsg;
+  if (itemsToDownload.length > 0) {
+      let verificationMsg = `Starting ${itemsToDownload.length} ${selectedFormat} download(s)...`;
+      // Add note only if the link count differs from the *overall* item count AND items were detected
+      if (itemsToDownload.length !== totalItemsDetected && totalItemsDetected > 0) {
+           verificationMsg += ` (Note: ${totalItemsDetected} items detected total)`;
+           statusDiv.style.color = 'orange';
+      } else {
+           statusDiv.style.color = 'green';
+      }
+      statusDiv.textContent = verificationMsg;
 
-        downloadButton.disabled = true;
-        closeButton.disabled = true;
+      downloadButton.disabled = true;
+      closeButton.disabled = true;
 
-        let downloadsInitiated = 0;
-        let downloadErrors = 0;
+      let downloadsInitiated = 0;
+      let downloadErrors = 0;
 
-        itemsToDownload.forEach((item, index) => {
-            const urlToDownload = item[formatKey];
+      itemsToDownload.forEach((item, index) => {
+          const urlToDownload = item[formatKey];
 
-             // --- DETAILED LOGGING ADDED HERE ---
-             console.log(`--- Processing Item #${index} ---`);
-             console.log(`  Item Data:`, item); // Log the whole item object
-             console.log(`  currentSanitizedBundleName:`, currentSanitizedBundleName);
-             console.log(`  item.bookName:`, item.bookName);
-             console.log(`  fileExtension:`, fileExtension);
-             // --- END OF DETAILED LOGGING ---
+          // --- Simpler Logging ---
+          console.log("--- Processing Item #", index, "---"); // Use comma separation
+          console.log("  Item Data:", item);
+          console.log("  currentSanitizedBundleName:", currentSanitizedBundleName);
+          console.log("  item.bookName:", item.bookName); // Log the book name variable
+          console.log("  fileExtension:", fileExtension);
 
-            // Construct the filename: Use sanitized names
-            // Format: SanitizedBundleName/SanitizedBookName.extension
-            const filename = `<span class="math-inline">\{item\.bookName\}\.</span>{fileExtension}`; // <<< USE THIS SIMPLIFIED VERSION
-            console.log(`>>> Simplified filename string being passed to API for item #<span class="math-inline">\{index\}\: "</span>{filename}"`);
-            console.log(`Attempting <span class="math-inline">\{selectedFormat\} download \#</span>{index + 1} for: ${item.bookName}`);
-            console.log(`  URL: ${urlToDownload}`);
-            console.log(`  Filename: ${filename}`);
+          // --- CONSTRUCT FILENAME ---
+          // Original simplified filename (likely still causing issues):
+          let filename = `${item.bookName}.${fileExtension}`;
 
-            chrome.downloads.download({
-                url: urlToDownload,
-                filename: filename // Use the constructed, sanitized filename path
-            }, (downloadId) => {
-                downloadsInitiated++;
-                if (chrome.runtime.lastError) {
-                    downloadErrors++;
-                    console.error(`Download failed for <span class="math-inline">\{item\.bookName\} \(</span>{urlToDownload}):`, chrome.runtime.lastError);
-                    // Show first error in popup status
-                    if(downloadErrors === 1) {
-                      errorDiv.textContent = `Error on download #${index + 1}: ${chrome.runtime.lastError.message}. Check console.`;
-                    }
-                } else {
-                    console.log(`Download started with ID: ${downloadId} for: ${item.bookName}`);
-                }
+          // --- !!! TEMPORARY TEST: HARDCODE FILENAME !!! ---
+          // Uncomment the next line to test with a fixed name:
+          // filename = `test_download_${index}.${fileExtension}`;
+          // --- !!! END OF TEMPORARY TEST !!! ---
 
-                // Check if this is the last download attempt (whether success or fail)
-                if (downloadsInitiated === itemsToDownload.length) {
-                   statusDiv.textContent = `Initiated ${downloadsInitiated - downloadErrors} / ${itemsToDownload.length} downloads. ${downloadErrors > 0 ? downloadErrors + ' failed to start.' : ''}`;
-                   // Close popup after a delay
-                   setTimeout(() => window.close(), downloadErrors > 0 ? 40000 : 50000);
-                }
-            });
-        });
-    } else {
-        statusDiv.textContent = `No ${selectedFormat} links were found for the detected items.`;
-        statusDiv.style.color = 'red';
-        console.error(`Download button clicked, but no ${selectedFormat} URLs available.`);
-    }
+          // Log the final filename string clearly
+          console.log(">>> Final filename string being passed:", filename); // Pass variable separately
+
+          console.log("Attempting download for:", item.bookName); // Use comma separation
+
+          chrome.downloads.download({
+              url: urlToDownload,
+              filename: filename // Pass the constructed (or hardcoded) filename
+          }, (downloadId) => {
+              downloadsInitiated++;
+              if (chrome.runtime.lastError) {
+                  downloadErrors++;
+                  // Log the error object directly
+                  console.error("Download failed for:", item.bookName, `(URL: ${urlToDownload})`, "Error:", chrome.runtime.lastError);
+                  // Update the error div in the popup
+                  if(downloadErrors === 1) { // Show first error prominently
+                     errorDiv.textContent = `Error on download #${index + 1}: ${chrome.runtime.lastError.message}. Check console.`;
+                  }
+              } else {
+                  console.log("Download started with ID:", downloadId, "for:", item.bookName);
+              }
+
+              // Check if this is the last download attempt (whether success or fail)
+              if (downloadsInitiated === itemsToDownload.length) {
+                 statusDiv.textContent = `Initiated ${downloadsInitiated - downloadErrors} / ${itemsToDownload.length} downloads. ${downloadErrors > 0 ? downloadErrors + ' failed.' : ''}`;
+                 // Keep popup open for debugging - REMOVE THE COMMENT ON THE LINE BELOW LATER
+                 // setTimeout(() => window.close(), downloadErrors > 0 ? 4000 : 2500);
+              }
+          });
+      });
+  } else {
+      statusDiv.textContent = `No ${selectedFormat} links were found for the detected items.`;
+      statusDiv.style.color = 'red';
+      console.error(`Download button clicked, but no ${selectedFormat} URLs available.`);
+  }
 });
